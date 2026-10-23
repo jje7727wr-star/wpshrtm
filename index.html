@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DC Inside Mobile Web Clone</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #f2f4f7;
+            color: #333;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dc-blue { color: #29367c; }
+        .bg-dc-blue { background-color: #29367c; }
+        .dc-border { border-color: #29367c; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center min-h-screen">
+
+    <!-- Mobile Device Container -->
+    <div class="w-full max-w-md bg-white shadow-md flex flex-col justify-between relative min-h-screen pb-16">
+        
+        <!-- Header Section -->
+        <header class="sticky top-0 z-40 bg-white">
+            <!-- Main Navy Header -->
+            <div class="bg-dc-blue px-3 py-2 flex items-center justify-between text-white">
+                <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
+                    <!-- DC Logo Icon -->
+                    <div class="font-black italic text-xl tracking-tighter bg-white text-[#29367c] px-1.5 py-0.5 rounded-sm flex items-center justify-center leading-none">
+                        dc
+                    </div>
+                </div>
+                <!-- Search Bar -->
+                <div class="flex-1 mx-2 relative">
+                    <input type="text" placeholder="갤러리 & 통합검색" class="w-full pl-8 pr-7 py-1 text-xs text-black rounded-sm focus:outline-none bg-white">
+                    <i class="fa-solid fa-bars absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs cursor-pointer" onclick="showToast('메뉴를 열었습니다.')"></i>
+                    <i class="fa-solid fa-magnifying-glass absolute right-2 top-1/2 -translate-y-1/2 text-[#29367c] text-xs cursor-pointer" onclick="showToast('검색 결과를 불러오는 중...')"></i>
+                </div>
+                <!-- Recent Visit Button -->
+                <button onclick="showToast('최근 방문 갤러리가 없습니다.')" class="border border-white/50 text-[11px] px-2 py-0.5 rounded text-white whitespace-nowrap active:opacity-70">
+                    최근방문
+                </button>
+            </div>
+
+            <!-- Sub Category Navigation Bar -->
+            <nav class="bg-[#3b4890] text-white text-[12px] flex justify-between items-center px-3 py-1.5 border-b border-blue-900 overflow-x-auto no-scrollbar font-medium">
+                <span onclick="goHome()" class="text-yellow-300 font-bold cursor-pointer whitespace-nowrap">갤러리</span>
+                <span onclick="showToast('마이너갤러리로 이동')" class="hover:text-gray-200 cursor-pointer whitespace-nowrap">마이너갤</span>
+                <span onclick="showToast('미니갤러리로 이동')" class="hover:text-gray-200 cursor-pointer whitespace-nowrap">미니갤</span>
+                <span onclick="showToast('인물갤러리로 이동')" class="hover:text-gray-200 cursor-pointer whitespace-nowrap">인물갤</span>
+                <span onclick="showToast('갤로그로 이동')" class="hover:text-gray-200 cursor-pointer whitespace-nowrap">갤로그</span>
+                <span onclick="showToast('이벤트 페이지')" class="hover:text-gray-200 cursor-pointer whitespace-nowrap">이벤트</span>
+            </nav>
+
+            <!-- Gallery Header Banner Info -->
+            <div class="px-3 py-2 flex items-center justify-between border-b border-gray-200 bg-white">
+                <div class="flex items-center space-x-1.5">
+                    <h1 class="font-bold text-base text-gray-900 cursor-pointer" onclick="goHome()">제녹스</h1>
+                    <span class="text-[10px] bg-gray-100 border border-gray-300 text-gray-600 rounded-full w-4 h-4 flex items-center justify-center font-bold">m</span>
+                    <span class="text-xs text-gray-400 font-normal">(31,994)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                    <i class="fa-regular fa-circle-question text-gray-400 cursor-pointer" onclick="showToast('갤러리 정보 안내')"></i>
+                    <span class="cursor-pointer" onclick="showToast('설정 페이지')">설정<span class="text-red-500 font-bold ml-0.5">N</span></span>
+                    <span class="text-gray-300">|</span>
+                    <span class="cursor-pointer" onclick="showToast('연관 갤러리 목록')">연관</span>
+                    <button onclick="openWritePage()" class="ml-1 border border-[#29367c] text-[#29367c] font-bold px-2 py-0.5 rounded text-xs hover:bg-blue-50 active:scale-95 transition-all">
+                        글쓰기
+                    </button>
+                </div>
+            </div>
+
+            <!-- Back Navigation Bar (Shows when not on main list) -->
+            <div id="backNav" class="hidden bg-gray-100 px-3 py-1.5 border-b border-gray-200 flex items-center justify-between text-xs text-gray-700">
+                <button onclick="goHome()" class="flex items-center space-x-1 font-bold text-[#29367c] hover:underline">
+                    <i class="fa-solid fa-chevron-left"></i>
+                    <span>뒤로가기 (목록으로)</span>
+                </button>
+                <span id="currentViewTitle" class="text-gray-500 text-[11px]">게시글 보기</span>
+            </div>
+        </header>
+
+        <!-- Dynamic Main Content Area -->
+        <main id="mainContent" class="flex-1 bg-white">
+            <!-- Top Sponsored Banner AD -->
+            <div class="bg-gray-50 p-2.5 border-b border-gray-200 text-xs">
+                <div class="flex items-center space-x-1.5">
+                    <span class="font-bold text-gray-800">리디북스 - 밴픽부터 불쾌했습니다(도토리타르트)</span>
+                    <span class="text-[10px] border border-gray-300 text-gray-400 px-1 rounded">AD</span>
+                </div>
+                <p class="text-[11px] text-gray-400 mt-0.5 truncate">#게임물 #배틀연애 #짝사랑공 #연상공 #인성파탄수 #미인수</p>
+            </div>
+
+            <!-- Tab Navigation (전체 / 개념글 / 공지) -->
+            <div class="flex border-b border-gray-200 text-center font-bold text-sm bg-white">
+                <button id="tab-all" onclick="switchTab('all')" class="flex-1 py-2.5 text-gray-500 border-b-2 border-transparent">
+                    전체
+                </button>
+                <button id="tab-concept" onclick="switchTab('concept')" class="flex-1 py-2.5 border-b-2 border-[#29367c] text-[#29367c]">
+                    개념글
+                </button>
+                <button id="tab-notice" onclick="switchTab('notice')" class="flex-1 py-2.5 text-gray-500 border-b-2 border-transparent">
+                    공지
+                </button>
+                <div onclick="showToast('정렬 옵션 설정')" class="w-16 flex items-center justify-center text-xs text-gray-500 border-l border-gray-100 cursor-pointer">
+                    30개 <i class="fa-solid fa-chevron-down ml-1 text-[10px]"></i>
+                </div>
+            </div>
+
+            <!-- Sub Category Filter Pills -->
+            <div id="subFilterBar" class="hidden flex items-center space-x-1 px-2 py-1.5 overflow-x-auto no-scrollbar border-b border-gray-100 bg-gray-50/50 text-xs">
+                <button onclick="filterCategory('all', this)" class="px-2.5 py-1 rounded-full bg-[#29367c] text-white whitespace-nowrap text-[11px] font-medium filter-btn">전체</button>
+                <button onclick="filterCategory('일반', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">일반</button>
+                <button onclick="filterCategory('자유', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">자유</button>
+                <button onclick="filterCategory('사건/사고', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">사건/사고</button>
+                <button onclick="filterCategory('스샷', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">스샷</button>
+                <button onclick="filterCategory('그림', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">그림</button>
+                <button onclick="filterCategory('정보', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">정보</button>
+            </div>
+
+            <!-- Fixed Banner Announcements -->
+            <div id="fixedNoticeList" class="divide-y divide-gray-100 border-b border-gray-200 bg-white">
+                <div class="px-3 py-2 flex items-center justify-between text-xs cursor-pointer hover:bg-gray-50" onclick="showToast('설문 조사 페이지로 이동합니다.')">
+                    <div class="flex items-center space-x-1.5 font-bold text-orange-600 truncate">
+                        <span class="border border-orange-500 text-orange-600 rounded-full text-[10px] px-1 py-0.2">설문</span>
+                        <span class="truncate">밴픽불쾌 읽으실 분</span>
+                    </div>
+                </div>
+                <div class="px-3 py-1.5 flex items-center text-xs text-gray-600 space-x-2 cursor-pointer hover:bg-gray-50" onclick="showToast('광고 페이지로 이동합니다.')">
+                    <span class="border border-gray-300 text-gray-500 rounded text-[10px] px-1">AD</span>
+                    <span class="truncate">스포일러가 다수 포함되어 있습니다</span>
+                </div>
+                <div class="px-3 py-1.5 flex items-center text-xs text-gray-600 space-x-2 cursor-pointer hover:bg-gray-50" onclick="showToast('사전예약 페이지로 이동합니다.')">
+                    <span class="border border-gray-300 text-gray-500 rounded text-[10px] px-1">AD</span>
+                    <span class="truncate">문제될 시 삭제됨</span>
+                </div>
+            </div>
+
+            <!-- Main Post List Container -->
+            <div id="postListContainer" class="divide-y divide-gray-100 bg-white">
+                <!-- Dynamic Posts Rendered Here -->
+            </div>
+
+        </main>
+
+        <!-- Floating Write Button (FAB) -->
+        <button onclick="openWritePage()" class="fixed bottom-6 right-5 w-12 h-12 bg-[#3b4890] text-white rounded-full shadow-lg flex items-center justify-center text-lg z-30 hover:bg-blue-900 transition-all active:scale-95">
+            <i class="fa-solid fa-pen"></i>
+        </button>
+
+        <!-- Toast Notification Box -->
+        <div id="toastBox" class="fixed bottom-16 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white text-xs px-4 py-2 rounded-full shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+            알림 메시지
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Mock Post Data (Added 'content' property to each post)
+        let postsData = [
+            // Notice items
+            { id: 101, isNotice: true, title: "제녹스 갤러리 이용 안내", author: "운영자", date: "10.15", views: 1205, upvotes: 12, commentsCount: 3, category: "공지", content: "안녕하세요. 제녹스 갤러리 이용 안내 공지사항입니다.\n\n1. 친목 및 비방 금지\n2. 도배 및 광고글 삭제\n3. 타인 비하 발언 자제\n\n깨끗한 갤러리 환경을 만듭시다." },
+            { id: 102, isNotice: true, title: "제녹스 마이너 갤러리 공지 (2026.09.20 ~ ver.)", author: "ㅇㅇ", date: "09.20", views: 2310, upvotes: 4, commentsCount: 2, category: "공지", content: "2026년 9월 20일 개정된 제녹스 마이너 갤러리 통합 공지 규칙입니다.\n자세한 사항은 아래 본문을 참고해 주시기 바랍니다." },
+            { id: 103, isNotice: true, title: "패치 노트 모음집 (2026.05.11)", author: "ㅇㅇ", date: "05.11", views: 4521, upvotes: 98, commentsCount: 1, category: "공지", content: "최근까지 진행된 패치노트 모음입니다.\n- 밸런스 패치\n- 버그 수정 및 개선사항\n- 신규 콘텐츠 추가" },
+            { id: 104, isNotice: true, title: "점령전 공략 모음집", author: "ㅇㅇ", date: "04.01", views: 3210, upvotes: 45, commentsCount: 0, category: "공지", content: "점령전 초보분들을 위한 핵심 길라잡이 공략집입니다." },
+            { id: 105, isNotice: true, title: "호출벨", author: "운영자", date: "03.12", views: 8910, upvotes: 120, commentsCount: 1, category: "공지", content: "갤러리 매니저 호출용 게시글입니다. 신고 및 문의는 댓글로 남겨주세요." },
+            
+            // Concept Posts
+            { id: 1, isConcept: true, title: "아기공룡둘째 클라우드제이미 겜 재밌게 하네(99+)", author: "한지한장", date: "10.23", views: 1087, upvotes: 99, commentsCount: 25, category: "사건/사고", content: "(아기공룡둘째 1:1 문의 신고글)\n\n (아기공룡둘째 전시즌 기록)\n\n (아기공룡둘째 이번 시즌 기록)\n\n (클라우드제이미 1:1 문의 신고글)\n\n\n  http:s//drive/gogle,com/erh2QEsd \n\n\n\n  이 시발새끼들은 왜 자꾸 어디서 기어나오냐?\n ㅋㅋ잘라서 올리자니 총체적 난국이라 영상올림 \n 반박해보든가 특성빨이라고 짖을거임?" },
+            { id: 2, isConcept: true, title: "그냥 메타가 ㅄ같음", author: "ㅇㅇ(123.30)", date: "10.19", views: 378, upvotes: 24, commentsCount: 3, category: "일반", content: "이번 시즌 메타 진짜 노답 아니냐?\n특정 캐릭터 아니면 아예 플레이가 안 되는데 이걸 밸런스라고 내놓은 건지 ㅉㅉ" },
+            { id: 3, isConcept: true, title: "걍 좀 지켜봐라", author: "ㅇㅇ(141.50)", date: "10.19", views: 125, upvotes: 55, commentsCount: 2, category: "일반", content: "패치된 지 겨우 이틀 지났다 징징거리지 말고 적응할 생각부터 해라 좀;" },
+            { id: 4, isConcept: true, title: "한지 어록 추가 <-- new!!", author: "ㅇㅇ(118.235)", date: "10.17", views: 678, upvotes: 86, commentsCount: 10, category: "일반", content: "뇌수 흐르냐? 거기가 니 묘비임? 시야석 왜 거따 꽂음? \n\n 타워 언제부터 페이스아이디 탑재함? 니가 얼굴 보여주면 타워 열림? \n\n 그 시야석 니 IQ랑 GPS 둘 다 오류난 거 인증임 \n\n 어저라고 시야석을 타워에 꽂냐 타워가 너 찾고 있었냐? \n\n 니 무슨종교믿음? 신이 게임 이기게 해 준대? 그래서 거기서 비는중? \n\n 궁 쿨이 문제가 아니라 니 뇌가 쿨중인거 같은데 \n\n 척수반사로 겜하면 재밌냐? \n\n\n\n . \n\n\ . \n\n\n\n 핑 왜 찍음? 영정사진 찍자고? \n\n 개미도 저렇게 일직선으론 안 움직이겠다 \n\n 손가락이 아니라 촉수임? 게임 말고 수족관에 있어야 할 듯 \n\n 무슨 덕담하냐? 니 존재 자체가 적 딜러한테 선물세트인데? \n\n 레벨이 어케 그럼? 내가 나무 타고 있어도 그거보단 잘 먹겠다 \n\n 니때문에 탱커 명상앱 켯겠다 맨정신으로 어케 버티겠냐? \n\n 시야석 박는 자리마다 운세가 갈림 니 시야패턴 보면 오늘 운세 별 하나임 \n\n 사주에 패배라고 적혀있기라도 하냐? \n\n 다음판은 무슨 다음생 가자 너 이번생엔 겜하면 안됨 \n\n 이렇게 하면 지는 거라고 강의 찍는중? " },
+            { id: 5, isConcept: true, title: "[사건/사고] 클라우드제이미 헬퍼 사용 증거(99+)}", author: "Noct7", date: "10.26", views: 1077, upvotes: 78, commentsCount: 9, category: "사건/사고", content: "요크셔주인이 몰랐다기에는 둘이 듀오할 때도 쓰던데 과거>현재 순임 실력이 주사위도 아니고 \n\n (짤)\n\n (짤)\n\n\n\n (튀는짤)\n\n (끌려감)\n\n\n\n . \n\n\n\n . \n\n\n\n . " },
+            { id: 6, isConcept: true, title: "엥? 엥? 엥? 엥? 엥? (99+)", author: "거수경례", date: "10.28", views: 512, upvotes: 15, commentsCount: 3, category: "자유", content: "[팀]한지한장(쇼르베): 요크셔는 **얼마나 대단하신 닉넴이길래 ㅋㅋ \n [팀]요크셔주인(피에르): 뭔데 나한테 이래라저래라 하냐니까 \n [팀]한지한장(쇼르베): 니 누군데요ㅋㅋ 뭐 얼마나 대단한 **시길래 황족마냥 컨셉질이야 \n [팀]요크셔주인(피에르): 아ㅋㅋ; 진짜 말안통하네 겜한지 얼마안돼서잘모르나본데 \n [팀]한지한장(쇼르베): 어쩌라고** 겜한지얼마되지도않는 나랑같은매칭잡힌손가락박살난**야 야ㅆㅣ발 티어나니나난나도긴개긴인데 ㅂㅕㅇ신이 어디서 꼰대질이야 ㅋㅋ \n\n\n  캡쳐 메타데이터 보면 이때가 갠토 일주일전=요크셔가 올린캡쳐날짜는 갠토 끝나고 일주일 뒤 \n\n\n 요크셔가 올린 부캐 트롤링 캡쳐시간에는 한지본캐랭겜 \n\n\n  " },
+            
+            // General Regular Posts
+            { id: 7, isConcept: false, title: "글고 보니 얼마전에", author: "ㅇㅇ(112.160)", date: "10.19", views: 182, upvotes: 2, commentsCount: 1, category: "스샷", content: "한지한장 랭겜에서만낫음ㅋㅋ." },
+            { id: 8, isConcept: false, title: "담비 그림ㅋㅋ", author: "ㅇㅇ(220.89)", date: "10.19", views: 845, upvotes: 25, commentsCount: 2, category: "그림", content: "심심해서 끄적여봄 잘 그렸으면 추천 좀 부탁" },
+            { id: 9, isConcept: false, title: "(best) 뉴비들을 위한 설명서 ver 6.2", author: "ㅇㅇ(121.130)", date: "10.19", views: 95, upvotes: 20, commentsCount: 2, category: "정보", content: "새로 시작하시는 분들은 이 글 하나만 읽으시면 끝납니다.\n1. 육성 경로\n2. 필수 장비 세팅\n3. 일일 숙제 목록" },
+            { id: 10, isConcept: false, title: "녹트좌한테 우편보냇는데 한지가 지랄함", author: "ㅇㅇ(125.130)", date: "10.20", views: 75, upvotes: 2, commentsCount: 2, category: "자유", content: "녹트좌 친구와 귓속말 거부라서.. 그냥 님쩔어요 담에 저랑도 겜해요 이런식으로 보냇는데 갑자기 담날 한지가 귓으로 존나 지랄함 왜이러는거임?" },
+            { id: 11, isConcept: false, title: "녹칠좌랑 한지랑 개같이 싸우던 사이라는 거 ㄹㅇ임?", author: "ㅇㅇ(123.13)", date: "10.24", views: 75, upvotes: 2, commentsCount: 2, category: "자유", content: "만날때마다 싸웟다는데 그냥 투닥대는거 ㄴㄴ 걍 존나 서로 욕박으면서 " }
+        ];
+
+        // Dynamic Comments Storage Keyed by Post ID
+        let commentsData = {
+            // Post ID 1 Comments
+            1: [
+                { id: 1, author: "ㅇㅇ", date: "10.23 01:34", content: "귀하다 한지시점 풀영상", isApp: true },
+                { id: 2, author: "ㅇㅇ", date: "10.23 01:34", content: "무려 베이사 한지님 쇼르베도 부탁드림다", isApp: true, isReply: true },
+                { id: 3, author: "ㅇㅇ(112.15)", date: "10.23 01:56", content: "한지야 일단 넌 아카샤부터 해명해라", isApp: false },
+                { id: 4, author: "ㅇㅇ(112.85)", date: "10.23 01:57", content: "행님 소리가업어요 앞부분도 업어요", isApp: false },
+                { id: 5, author: "ㅇㅇ(12.185)", date: "10.23 01:57", content: "야이싯팔ㅋㅋㅋㅋ 한지 시점을 사사게에서 보냌ㅋㅋㅋㅋㅋ", isApp: false },
+                { id: 6, author: "ㅇㅇ(114.85)", date: "10.23 01:57", content: "라연은 알겠음. 근데 셰이드하운드는 뭐가 문제??", isApp: false },
+                { id: 7, author: "ㅇㅇ", date: "10.23 01:57", content: "딜사이클이 너무 매끄러움", isApp: true, isReply: true },
+                { id: 8, author: "ㅇㅇ", date: "10.23 01:57", content: "공속세팅하고 공속킷까지 빨면 안됨?", isApp: true, isReply: true },
+                { id: 9, author: "ㅇㅇ", date: "10.23 01:57", content: "ㄴㄴ 그럼 스킬이 빨라야하는데 후딜이랑 선딜만 없음", isApp: true, isReply: true },
+                { id: 10, author: "ㅇㅇ(112.55)", date: "10.23 01:57", content: "공근데 이거만으로는 애매하지않나?", isApp: false, isReply: true },
+                { id: 11, author: "ㅇㅇ", date: "10.23 01:57", content: "이 새끼 클제이 내시냐?ㅋㅋㅋ 억쉴드 우웩", isApp: true, isReply: true },
+                { id: 12, author: "ㅇㅇ(112.55)", date: "10.23 01:57", content: "몰아가진말자는거지 뭔 쉴드임 중립기어 모르냐?", isApp: false, isReply: true },
+                { id: 13, author: "ㅇㅇ", date: "10.23 01:57", content: "중립기어 박을 일이 아니라고 ㅄ아 증거 영상으로 떳는데 뭔ㅋㅋㅋ 밑에 댓글이랑 파생글 읽고 분위기 파악이나 해라", isApp: true, isReply: true },
+                { id: 14, author: "ㅇㅇ", date: "10.23 01:58", content: "별 정신병자 새끼를 다보네 ㅋㅋㅋ", isApp: true, isReply: true },
+                { id: 15, author: "ㅇㅇ", date: "10.23 01:58", content: "(신고되어 삭제된 댓글입니다.)", isApp: true, isReply: true },
+                { id: 16, author: "ㅇㅇ(124.85)", date: "10.23 01:59", content: "공룡 쟤 나랑 만났을땐 원딜 존나잘하길래 부캔줄 알았더니 대리ㅋㅋㅋㅋㅋㅋㅋ", isApp: false },
+                { id: 17, author: "ㅇㅇ(122.35)", date: "10.23 02:00", content: "한지 이 마약탐지견 새끼..", isApp: false },
+                { id: 18, author: "ㅇㅇ(122.95)", date: "10.23 02:00", content: "잘키운 광견 하나 열운영진보다 낫다.", isApp: false },
+                { id: 19, author: "ㅇㅇ(112.38)", date: "10.23 02:00", content: "아 채팅창 개꿀잼이엇을거 같은데 가렷네ㅅㅂㅜ", isApp: false },
+                { id: 20, author: "ㅇㅇ", date: "10.23 02:00", content: "22 ㅋㅋㅋㅋㅋ 핵이니 대리니 어차피 한지한테 개털렷을거 같아서 모르겠고 그냥 저 상황이 쥰내궁금함ㅋㅋㅋㅋㅋㅋㅋ", isApp: true, isReply: true },
+                { id: 21, author: "ㅇㅇ", date: "10.23 02:01", content: "333 아 솔직히 박스 사라질줄알고 채팅창만 존나노려봄ㅋㅋㅋ", isApp: true, isReply: true },
+                { id: 22, author: "ㅇㅇ(122.35)", date: "10.23 02:00", content: "난 일단 클제이는 중립박음", isApp: false },
+                { id: 23, author: "ㅇㅇ", date: "10.23 02:01", content: "2", isApp: true, isReply: true },
+                { id: 24, author: "ㅇㅇ", date: "10.23 02:02", content: "33", isApp: true, isReply: true },
+                { id: 25, author: "ㅇㅇ", date: "10.23 02:05", content: "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ할말하않", isApp: true, isReply: true }
+            ],
+
+            // Post ID 2 Comments
+            2: [
+                { id: 1, author: "ㅇㅇ(118.235)", date: "10.19 02:10", content: "인정함 패치팀 게임 안 해보는 게 확실함", isApp: true },
+                { id: 2, author: "ㅇㅇ(211.36)", date: "10.19 02:12", content: "꼬우면 접던가 ㅋㅋㅋ", isApp: false },
+                { id: 3, author: "ㅇㅇ(123.30)", date: "10.19 02:15", content: "ㄴ 넌 꼭 접지 마라 ㅋㅋㅋ", isApp: false, isReply: true }
+            ],
+            // Post ID 3 Comments
+            3: [
+                { id: 1, author: "ㅇㅇ(220.89)", date: "10.19 03:00", content: "맞는 말임 좀 연구되고 말해라", isApp: true },
+                { id: 2, author: "ㅇㅇ(175.223)", date: "10.19 03:05", content: "알바임?", isApp: false }
+            ],
+            // Post ID 2 Comments
+            4: [
+                { id: 1, author: "ㅇㅇ(118.235)", date: "10.17 02:10", content: "미쳤냨ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ", isApp: true },
+                { id: 2, author: "ㅇㅇ(211.36)", date: "10.17 02:12", content: "ㅋㅋㅅㅂ 이게머냐 ㅋㅋ", isApp: false },
+                { id: 3, author: "ㅇㅇ(123.30)", date: "10.17 02:15", content: "이게 ㄹㅇ 복귀 30시간도 안돼서 추가된 어록이라고?", isApp: false },
+                { id: 4, author: "ㅇㅇ", date: "10.27 02:15", content: "ㅇㅇ", isApp: true, isReply: true },
+                { id: 5, author: "ㅇㅇ(251.36)", date: "10.17 02:16", content: "욕만 안하네 씹 ㅋㅋㅋㅋㅋㅋㅋ", isApp: false },
+                { id: 6, author: "ㅇㅇ(211.36)", date: "10.17 02:12", content: "아 ㅅㅂ 신고한 새끼 빨리 자진해서 랭포 헌납하라고 ㅋㅋㅋㅋㅋㅋㅋ 지금 한지가 신호보내잖앜ㅋㅋㅋㅋㅋ", isApp: false },
+                { id: 7, author: "ㅇㅇ(211.36)", date: "10.17 02:12", content: "탈모발언은 왜뺌?", isApp: false },
+                { id: 8, author: "ㅇㅇ(251.36)", date: "10.17 02:16", content: "그건 너무 광역 저격같아서 뺌", isApp: false, isReply: true },
+                { id: 9, author: "ㅇㅇ(212.34)", date: "10.17 02:16", content: "탈모 발언은 또 먼데?", isApp: false, isReply: true },
+                { id: 10, author: "ㅇㅇ(251.36)", date: "10.17 02:16", content: "대충 대머리새끼가 멀쩡한척하는데 게임점수까지 니 머리처럼 홀쭉해질 거냐고함", isApp: false, isReply: true }
+            ],
+            // Post ID 2 Comments
+            5: [
+                { id: 1, author: "ㅇㅇ(118.235)", date: "10.26 02:10", content: "이게 왜 지금까지 안 걸린거임????????????", isApp: true },
+                { id: 2, author: "ㅇㅇ(211.36)", date: "10.26 02:12", content: "핼퍼가 안걸린게 가능함? 지하도 아니고 천상계인데?", isApp: false },
+                { id: 3, author: "ㅇㅇ(123.30)", date: "10.26 02:15", content: "위티어가 아닌거가틈 클제이도클제인데 적팀무빙이 천상계그맛이 ㄴㄴ", isApp: false, isReply: true },
+                { id: 4, author: "ㅇㅇ", date: "10.26 02:15", content: "ㅇㅇ 높게치면 플래", isApp: true, isReply: true },
+                { id: 5, author: "ㅇㅇ(251.36)", date: "10.26 02:16", content: "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ싹다파묘되네 ㅋㅋ", isApp: false },
+                { id: 6, author: "ㅇㅇ(211.36)", date: "10.26 02:12", content: "핵은 상습이라니까 ㅅㅂ 탐지하는거 도입되라고", isApp: false },
+                { id: 7, author: "ㅇㅇ(211.36)", date: "10.26 02:12", content: "돈없대", isApp: false, isReply: true },
+                { id: 8, author: "ㅇㅇ(251.36)", date: "10.26 02:16", content: "좆같은밸패나 처하지말고 ㅅㅂ", isApp: false, isReply: true },
+                { id: 9, author: "ㅇㅇ(212.34)", date: "10.26 02:16", content: "요크셔 난 몰라용 싹 걸렷죠 ㅋㅋ?", isApp: false }
+            ],
+            // Post ID 101 (Notice) Comments
+            10: [
+                { id: 1, author: "silence", date: "10.20 14:00", content: "꿀팁 ㄳ", isApp: true },
+                { id: 2, author: "ㅇㅇ(211.234)", date: "10.20 14:10", content: "이 새끼는 씨발ㅋㅋㅋㅋ 한지없으면못사나 자꾸 한지관심끈놈들 글에 귀신같이 나타나는거 ㅈㄴ웃기네 ", isApp: true, isReply: true },
+                { id: 3, author: "ㅇㅇ", date: "10.20 15:30", content: "모르고 살던 마조 취향 오픈 당한듯", isApp: false, isReply: true }
+            ],
+            // Post ID 101 (Notice) Comments
+            6: [
+                { id: 1, author: "ㅇㅇ", date: "10.28 14:00", content: "한지는 저때도 안참앗구나", isApp: true },
+                { id: 2, author: "ㅇㅇ(211.234)", date: "10.28 14:10", content: "ㅇㅇ 당연함 광견임 ", isApp: true, isReply: true },
+                { id: 3, author: "ㅇㅇ", date: "10.28 15:30", content: "그니까 요크셔가 한지한테 개털리고 나서 개열받앗는데 저때 한지부캐후보알고 그걸내시한테 흘렷다는거지 ㅋㅋ?", isApp: false }
+            ],
+            // Post ID 101 (Notice) Comments
+            11: [
+                { id: 1, author: "ㅇㅇ", date: "10.24 14:00", content: "ㄹㅇ?", isApp: true },
+                { id: 2, author: "ㅇㅇ(213.13)", date: "10.24 14:10", content: "ㅇㅇ 나도길원한테 들음 ", isApp: true, isReply: true },
+                { id: 3, author: "ㅇㅇ", date: "10.24 15:30", content: "?그렇다기엔 말이 안 되는데 둘이 존나 붙어다지낳아 녹트 한지깔로 ㅇㅅ입고 다니고 똥 ㅈㄴ수습하던뎅ㅋ ㅋ", isApp: false, isReply: true },
+                { id: 4, author: "ㅇㅇ", date: "10.24 15:32", content: "사랑 아니면 안되 ㅋㅋ", isApp: false, isReply: true },
+                { id: 5, author: "ㅇㅇ", date: "10.24 15:33", content: "?한지를?????????????????????????", isApp: false, isReply: true },
+                { id: 6, author: "ㅇㅇ", date: "10.24 15:30", content: "둘이 비슷혀 ㅋㅋ", isApp: false, isReply: true }
+            ],
+            // Post ID 101 (Notice) Comments
+            101: [
+                { id: 1, author: "ㅇㅇ(112.160)", date: "10.15 14:00", content: "공지 확인했습니다.", isApp: true },
+                { id: 2, author: "ㅇㅇ(211.234)", date: "10.15 14:10", content: "수고하십니다 매니저님", isApp: true },
+                { id: 3, author: "ㅇㅇ", date: "10.15 15:30", content: "클린한 갤러리 만읍시다", isApp: false }
+            ],
+            // Post ID 102 (Notice) Comments
+            102: [
+                { id: 1, author: "ㅇㅇ", date: "09.20 18:20", content: "개정 사항 확인 완료", isApp: true },
+                { id: 2, author: "ㅇㅇ(121.130)", date: "09.20 19:00", content: "감사합니다", isApp: false }
+            ]
+        };
+
+        let currentTab = 'concept';
+        let currentSubCategory = 'all';
+        let currentPostId = null;
+
+        // On Page Load
+        window.onload = function() {
+            switchTab('concept');
+        };
+
+        // Tab Switcher Logic
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            const tabs = ['all', 'concept', 'notice'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (btn) {
+                    if (t === tab) {
+                        btn.className = "flex-1 py-2.5 border-b-2 border-[#29367c] text-[#29367c] font-bold";
+                    } else {
+                        btn.className = "flex-1 py-2.5 text-gray-500 border-b-2 border-transparent font-medium";
+                    }
+                }
+            });
+
+            const filterBar = document.getElementById('subFilterBar');
+            if (filterBar) {
+                if (tab === 'all') {
+                    filterBar.classList.remove('hidden');
+                } else {
+                    filterBar.classList.add('hidden');
+                }
+            }
+
+            renderPostList();
+        }
+
+        // Sub Category Filter
+        function filterCategory(cat, btnElement) {
+            currentSubCategory = cat;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn";
+            });
+            btnElement.className = "px-2.5 py-1 rounded-full bg-[#29367c] text-white whitespace-nowrap text-[11px] font-medium filter-btn";
+            renderPostList();
+        }
+
+        // Render Main Post List
+        function renderPostList() {
+            const container = document.getElementById('postListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let filteredPosts = postsData;
+
+            if (currentTab === 'concept') {
+                filteredPosts = postsData.filter(p => p.isConcept);
+            } else if (currentTab === 'notice') {
+                filteredPosts = postsData.filter(p => p.isNotice);
+            } else if (currentTab === 'all') {
+                if (currentSubCategory !== 'all') {
+                    filteredPosts = postsData.filter(p => p.category === currentSubCategory);
+                }
+            }
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-gray-400 text-xs">게시글이 없습니다.</div>`;
+                return;
+            }
+
+            filteredPosts.forEach(post => {
+                const postEl = document.createElement('div');
+                postEl.className = "px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors";
+                postEl.onclick = () => openPostDetail(post.id);
+
+                if (post.isNotice && currentTab === 'notice') {
+                    postEl.innerHTML = `
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-1.5 truncate">
+                                <span class="border border-red-400 text-red-500 rounded-full text-[10px] px-1 py-0.2 whitespace-nowrap">공지</span>
+                                <span class="text-gray-800 truncate font-medium">${post.title}</span>
+                            </div>
+                            <span class="text-red-500 font-bold text-xs ml-2">${post.commentsCount || ''}</span>
+                        </div>
+                    `;
+                } else {
+                    postEl.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 pr-2">
+                                <div class="flex items-center space-x-1 text-xs font-semibold text-gray-900 leading-snug">
+                                    ${post.isConcept ? '<i class="fa-solid fa-star text-blue-500 text-[11px]"></i>' : ''}
+                                    <span class="hover:underline">${post.title}</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5 text-[11px] text-gray-400 mt-1">
+                                    <span>${post.author}</span>
+                                    ${post.isDcApp ? '<span class="bg-gray-200 text-gray-600 px-0.5 rounded text-[9px]">dc App</span>' : ''}
+                                    <span>|</span>
+                                    <span>${post.date}</span>
+                                    <span>|</span>
+                                    <span>조회 ${post.views}</span>
+                                    <span>|</span>
+                                    <span>추천 <span class="text-red-500">${post.upvotes}</span></span>
+                                </div>
+                            </div>
+                            <div class="text-red-500 font-bold text-xs pt-0.5">
+                                ${post.commentsCount}
+                            </div>
+                        </div>
+                    `;
+                }
+                container.appendChild(postEl);
+            });
+        }
+
+        // Open Post Detail Page
+        function openPostDetail(id) {
+            currentPostId = id;
+            const post = postsData.find(p => p.id === id);
+            if (!post) return;
+
+            post.views++;
+
+            // If comments don't exist yet for this post ID, create default list
+            if (!commentsData[id]) {
+                commentsData[id] = [
+                    { id: 1, author: "ㅇㅇ", date: "방금 전", content: "잘 읽었습니다. ", isApp: true }
+                ];
+            }
+
+            document.getElementById('backNav').classList.remove('hidden');
+            document.getElementById('currentViewTitle').innerText = "게시글 상세보기";
+
+            // Format body content (convert newlines to <br>)
+            const formattedContent = (post.content || `${post.title} 관련 게시글 본문 내용입니다.`).replace(/\n/g, '<br>');
+
+            const main = document.getElementById('mainContent');
+            main.innerHTML = `
+                <div class="p-3 border-b border-gray-200 bg-white">
+                    <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-[#29367c] font-bold">[${post.category || '일반'}]</span>
+                        <h2 class="text-sm font-bold text-gray-900">${post.title}</h2>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                        <div class="flex items-center space-x-1">
+                            <span class="font-medium text-gray-700">${post.author}</span>
+                            <span>|</span>
+                            <span>2026.10.20 00:59</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span>조회 ${post.views}</span>
+                            <span>추천 <span id="detailUpvoteCount" class="text-red-500">${post.upvotes}</span></span>
+                            <span>댓글 <span class="text-red-500" id="detailCommentHeaderCount">${commentsData[id].length}</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 text-xs text-gray-800 leading-relaxed min-h-[140px] bg-white border-b border-gray-100">
+                    <p class="mb-3">${formattedContent}</p>
+                    <div class="my-4 p-3 bg-gray-50 border border-gray-200 rounded text-center text-gray-500">
+                        <i class="fa-regular fa-image text-2xl block mb-1 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="py-4 bg-white flex justify-center items-center space-x-3 border-b border-gray-200">
+                    <button onclick="votePost(${post.id}, 'up')" class="flex flex-col items-center justify-center border border-red-300 bg-red-50 hover:bg-red-100 w-16 h-16 rounded-md active:scale-95 transition-all">
+                        <i class="fa-regular fa-thumbs-up text-red-500 text-lg mb-0.5"></i>
+                        <span class="text-xs font-bold text-red-600">개념</span>
+                        <span id="btnUpvoteNum" class="text-[10px] text-red-500 font-bold">${post.upvotes}</span>
+                    </button>
+                    <button onclick="votePost(${post.id}, 'down')" class="flex flex-col items-center justify-center border border-gray-300 bg-gray-50 hover:bg-gray-100 w-16 h-16 rounded-md active:scale-95 transition-all">
+                        <i class="fa-regular fa-thumbs-down text-gray-500 text-lg mb-0.5"></i>
+                        <span class="text-xs font-bold text-gray-600">비추</span>
+                        <span id="btnDownvoteNum" class="text-[10px] text-gray-500 font-bold">0</span>
+                    </button>
+                </div>
+
+                <div class="flex justify-around bg-gray-50 py-2 border-b border-gray-200 text-xs text-gray-600">
+                    <button onclick="showToast('즐겨찾기가 완료되었습니다')" class="flex items-center space-x-1 hover:text-yellow-600"><i class="fa-solid fa-star text-yellow-500"></i><span>즐겨찾기</span></button>
+                    <button onclick="showToast('스크랩 되었습니다')" class="flex items-center space-x-1 hover:text-blue-600"><i class="fa-regular fa-bookmark"></i><span>스크랩</span></button>
+                    <button onclick="showToast('주소가 복사되었습니다')" class="flex items-center space-x-1 hover:text-green-600"><i class="fa-regular fa-share-from-square"></i><span>공유</span></button>
+                    <button onclick="showToast('신고 접수가 완료되었습니다')" class="flex items-center space-x-1 hover:text-red-600"><i class="fa-regular fa-lightbulb"></i><span>신고</span></button>
+                </div>
+
+                <div class="bg-white p-3">
+                    <div class="flex items-center justify-between border-b border-gray-200 pb-2 mb-2">
+                        <span class="font-bold text-xs text-gray-800">댓글 [<span class="text-red-500" id="commentTotalCount">${commentsData[id].length}</span>]</span>
+                        <button onclick="renderComments(${id}); showToast('댓글 목록이 새로고침 되었습니다.');" class="text-[11px] text-gray-500 hover:text-black"><i class="fa-solid fa-rotate-right mr-1"></i>새로고침</button>
+                    </div>
+
+                    <div id="commentsContainer" class="divide-y divide-gray-100 mb-3"></div>
+
+                    <div class="bg-gray-50 p-2.5 rounded border border-gray-200">
+                        <div class="flex space-x-1 mb-1.5">
+                            <input id="cmtAuthor" type="text" value="ㅇㅇ" class="w-1/2 p-1 text-xs border border-gray-300 rounded bg-white">
+                            <input id="cmtPw" type="password" placeholder="비밀번호" value="1234" class="w-1/2 p-1 text-xs border border-gray-300 rounded bg-white">
+                        </div>
+                        <div class="flex space-x-1.5">
+                            <textarea id="cmtInput" rows="2" placeholder="타인의 권리를 침해하거나 명예를 훼손하는 댓글은 제재를 받을 수 있습니다." class="flex-1 p-1.5 text-xs border border-gray-300 rounded resize-none focus:outline-none bg-white"></textarea>
+                            <button onclick="addComment(${id})" class="w-14 bg-[#29367c] text-white font-bold text-xs rounded hover:bg-blue-900 active:scale-95 transition-all">
+                                등록
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            renderComments(id);
+        }
+
+        // Render Comments
+        function renderComments(postId) {
+            const container = document.getElementById('commentsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const list = commentsData[postId] || [];
+            list.forEach(cmt => {
+                const item = document.createElement('div');
+                item.className = `py-2 text-xs ${cmt.isReply ? 'pl-4 bg-gray-50/50' : ''}`;
+                item.innerHTML = `
+                    <div class="flex items-center justify-between font-bold text-gray-700">
+                        <div class="flex items-center space-x-1">
+                            ${cmt.isReply ? '<span class="text-blue-900 font-bold mr-1">ㄴ</span>' : ''}
+                            <span>${cmt.author}</span>
+                            ${cmt.isApp ? '<span class="bg-gray-200 text-gray-600 px-0.5 text-[9px] rounded font-normal">dc App</span>' : ''}
+                        </div>
+                        <span class="text-[10px] text-gray-400 font-normal">${cmt.date}</span>
+                    </div>
+                    <p class="text-gray-800 mt-0.5 leading-normal ${cmt.isReply ? 'pl-3' : ''}">${cmt.content}</p>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Add Comment Function
+        function addComment(postId) {
+            const author = document.getElementById('cmtAuthor').value.trim() || 'ㅇㅇ';
+            const content = document.getElementById('cmtInput').value.trim();
+
+            if (!content) {
+                showToast('댓글 내용을 입력해주세요.');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = `${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const newCmt = {
+                id: Date.now(),
+                author: author,
+                date: dateStr,
+                content: content,
+                isApp: true
+            };
+
+            commentsData[postId].push(newCmt);
+            
+            const post = postsData.find(p => p.id === postId);
+            if (post) post.commentsCount++;
+
+            document.getElementById('cmtInput').value = '';
+            document.getElementById('commentTotalCount').innerText = commentsData[postId].length;
+            
+            renderComments(postId);
+            showToast('댓글이 등록되었습니다.');
+        }
+
+        // Vote (Up/Down) Post Function
+        function votePost(postId, type) {
+            const post = postsData.find(p => p.id === postId);
+            if (!post) return;
+
+            if (type === 'up') {
+                post.upvotes++;
+                const detailCount = document.getElementById('detailUpvoteCount');
+                if (detailCount) detailCount.innerText = post.upvotes;
+                const btnCount = document.getElementById('btnUpvoteNum');
+                if (btnCount) btnCount.innerText = post.upvotes;
+                showToast('개념글로 추천했습니다!');
+            } else {
+                const downEl = document.getElementById('btnDownvoteNum');
+                if (downEl) downEl.innerText = parseInt(downEl.innerText) + 1;
+                showToast('비추천했습니다.');
+            }
+        }
+
+        // Write Page View Switch
+        function openWritePage() {
+            document.getElementById('backNav').classList.remove('hidden');
+            document.getElementById('currentViewTitle').innerText = "글쓰기";
+
+            const main = document.getElementById('mainContent');
+            main.innerHTML = `
+                <div class="p-3 bg-white">
+                    <div class="flex items-center space-x-2 pb-2 border-b border-gray-200 mb-2">
+                        <input id="writeAuthor" type="text" value="ㅇㅇ" placeholder="닉네임" class="w-1/2 p-1.5 text-xs border border-gray-300 rounded">
+                        <input id="writePw" type="password" value="1234" placeholder="비밀번호" class="w-1/2 p-1.5 text-xs border border-gray-300 rounded">
+                    </div>
+                    
+                    <div class="mb-2">
+                        <input id="writeTitle" type="text" placeholder="제목을 입력하세요." class="w-full p-2 text-xs border border-gray-300 rounded focus:outline-none focus:border-blue-800">
+                    </div>
+
+                    <div class="flex items-center space-x-3 text-gray-500 border border-gray-200 rounded p-1.5 bg-gray-50 mb-2 text-xs">
+                        <button onclick="showToast('굵게 서식이 선택되었습니다')" class="font-bold">B</button>
+                        <button onclick="showToast('기울임 서식이 선택되었습니다')" class="italic">I</button>
+                        <button onclick="showToast('밑줄 서식이 선택되었습니다')" class="underline">U</button>
+                        <button onclick="showToast('이미지 첨부 버튼')" class="hover:text-black"><i class="fa-regular fa-image"></i></button>
+                        <button onclick="showToast('링크 첨부 버튼')" class="hover:text-black"><i class="fa-solid fa-link"></i></button>
+                    </div>
+
+                    <textarea id="writeBody" rows="10" placeholder="내용을 입력하세요. (음란물, 법령 위반 게시물 등은 삭제될 수 있습니다.)" class="w-full p-2 text-xs border border-gray-300 rounded resize-none focus:outline-none"></textarea>
+
+                    <div class="flex justify-end space-x-2 mt-3">
+                        <button onclick="goHome()" class="px-4 py-1.5 border border-gray-300 text-gray-600 rounded text-xs active:bg-gray-100">취소</button>
+                        <button onclick="submitNewPost()" class="px-4 py-1.5 bg-[#29367c] text-white font-bold rounded text-xs hover:bg-blue-900 active:scale-95 transition-all">등록</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Submit New Post
+        function submitNewPost() {
+            const titleEl = document.getElementById('writeTitle');
+            const bodyEl = document.getElementById('writeBody');
+            const authorEl = document.getElementById('writeAuthor');
+
+            if (!titleEl || !bodyEl) return;
+
+            const title = titleEl.value.trim();
+            const body = bodyEl.value.trim();
+            const author = (authorEl && authorEl.value.trim()) ? authorEl.value.trim() : 'ㅇㅇ';
+
+            if (!title || !body) {
+                showToast('제목과 내용을 모두 입력해 주세요.');
+                return;
+            }
+
+            const now = new Date();
+            const timeStr = `${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')}`;
+            const newId = Date.now();
+
+            const newPost = {
+                id: newId,
+                isNotice: false,
+                isConcept: true,
+                title: title,
+                author: author,
+                date: timeStr,
+                views: 1,
+                upvotes: 1,
+                commentsCount: 0,
+                category: "일반",
+                content: body
+            };
+
+            postsData.unshift(newPost);
+            commentsData[newId] = []; // Initialize empty comments list for new post
+
+            showToast('게시물이 등록되었습니다.');
+            goHome();
+        }
+
+        // Navigation: Go Back to Main List View
+        function goHome() {
+            currentPostId = null;
+            const backNav = document.getElementById('backNav');
+            if (backNav) backNav.classList.add('hidden');
+            
+            const main = document.getElementById('mainContent');
+            if (!main) return;
+
+            main.innerHTML = `
+                <div class="bg-gray-50 p-2.5 border-b border-gray-200 text-xs">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="font-bold text-gray-800">기장,술추가 없이 투명한상담</span>
+                        <span class="text-[10px] border border-gray-300 text-gray-400 px-1 rounded">AD</span>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-0.5 truncate">컨피그헤어는 많은 고객을 빠르게 시술하는 공간이 아닙니다 한 분 한 분을 존중합니다</p>
+                </div>
+
+                <div class="flex border-b border-gray-200 text-center font-bold text-sm bg-white">
+                    <button id="tab-all" onclick="switchTab('all')" class="flex-1 py-2.5 text-gray-500 border-b-2 border-transparent">전체</button>
+                    <button id="tab-concept" onclick="switchTab('concept')" class="flex-1 py-2.5 text-gray-500 border-b-2 border-transparent">개념글</button>
+                    <button id="tab-notice" onclick="switchTab('notice')" class="flex-1 py-2.5 text-gray-500 border-b-2 border-transparent">공지</button>
+                    <div onclick="showToast('정렬 옵션 설정')" class="w-16 flex items-center justify-center text-xs text-gray-500 border-l border-gray-100 cursor-pointer">
+                        30개 <i class="fa-solid fa-chevron-down ml-1 text-[10px]"></i>
+                    </div>
+                </div>
+
+                <div id="subFilterBar" class="hidden flex items-center space-x-1 px-2 py-1.5 overflow-x-auto no-scrollbar border-b border-gray-100 bg-gray-50/50 text-xs">
+                    <button onclick="filterCategory('all', this)" class="px-2.5 py-1 rounded-full bg-[#29367c] text-white whitespace-nowrap text-[11px] font-medium filter-btn">전체</button>
+                    <button onclick="filterCategory('일반', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">일반</button>
+                    <button onclick="filterCategory('소식', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">소식</button>
+                    <button onclick="filterCategory('클립', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">클립</button>
+                    <button onclick="filterCategory('스샷', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">스샷</button>
+                    <button onclick="filterCategory('그림', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">그림</button>
+                    <button onclick="filterCategory('정보', this)" class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap text-[11px] filter-btn">정보</button>
+                </div>
+
+                <div id="fixedNoticeList" class="divide-y divide-gray-100 border-b border-gray-200 bg-white">
+                    <div class="px-3 py-2 flex items-center justify-between text-xs cursor-pointer hover:bg-gray-50" onclick="showToast('설문 조사 페이지로 이동합니다.')">
+                        <div class="flex items-center space-x-1.5 font-bold text-orange-600 truncate">
+                            <span class="border border-orange-500 text-orange-600 rounded-full text-[10px] px-1 py-0.2">설문</span>
+                            <span class="truncate">여성이 연애 상대로 가장 꺼리는 남성의 취미는?</span>
+                        </div>
+                    </div>
+                    <div class="px-3 py-1.5 flex items-center text-xs text-gray-600 space-x-2 cursor-pointer hover:bg-gray-50" onclick="showToast('광고 페이지로 이동합니다.')">
+                        <span class="border border-gray-300 text-gray-500 rounded text-[10px] px-1">AD</span>
+                        <span class="truncate">가전디지털, 악세서리 SALE</span>
+                    </div>
+                    <div class="px-3 py-1.5 flex items-center text-xs text-gray-600 space-x-2 cursor-pointer hover:bg-gray-50" onclick="showToast('사전예약 페이지로 이동합니다.')">
+                        <span class="border border-gray-300 text-gray-500 rounded text-[10px] px-1">AD</span>
+                        <span class="truncate">아이폰 듀오, 사전예약 신청만 해도 공짜~!</span>
+                    </div>
+                </div>
+
+                <div id="postListContainer" class="divide-y divide-gray-100 bg-white"></div>
+            `;
+
+            switchTab(currentTab);
+        }
+
+        // Show Toast Function
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
